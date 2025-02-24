@@ -17,7 +17,7 @@ An example use for the library is in a client-sever context. The library would b
 ✅ **Stateful Execution** – Supports incremental evaluation of workflows.  
 ✅ **Serialization** – Workflows can be marshaled and unmarshaled for storage or transfer.  
 ✅ **Graph Dependency Management** – Uses a graph structure to manage execution order.  
-✅ **Workflow Synchronization** – Supports smart updates without full recomputation.
+✅ **Workflow Synchronization** – Supports smart updates without full recomputation.  
 ✅ **Typed Input** – Provides the computed types for the input into each operation.
 
 ## **📦 Installation**
