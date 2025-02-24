@@ -4,7 +4,7 @@
 
 # **Flowstate**
 
-_A library for defining, executing, and persisting computation._
+_A library for defining, executing, and persisting stateful computation._
 
 ## **📌 Description**
 

@@ -1,7 +1,7 @@
 {
   "name": "@jovulic/flowstate",
   "version": "0.1.0",
-  "description": "A library for defining, executing, and persisting data workflows.",
+  "description": "A library for defining, executing, and persisting stateful computation.",
   "type": "module",
   "exports": {
     "types": "./dist/index.d.ts",
