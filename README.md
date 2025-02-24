@@ -10,7 +10,7 @@ _A library for defining, executing, and persisting stateful computation._
 
 `Flowstate` is a lightweight library for constructing and executing stateful and serializable computations graphs. `Flowstate` handles operation dependencies, and the stateful execution of the workflow nodes. `Flowstate` also allows for workflow serialization and provides the ability to easily synchronize workflows such that the workflow is minimally impacted. `Flowstate` also provdies type information for the input into each operation in the graph.
 
-An example use for the library is in a client-sever context. The library would be used to describe a workflow that includes potentially expensive operations, where you only want to compute the result of those opartions once. The workflow could be saved and restored to resume computation or retrieve the result of completed computation, in addition to having updates propogated to the workflow while keeping that same computation state where possible.
+An example use for the library is in a client-sever context. The library would be used to describe a workflow that includes potentially expensive operations, where you only want to compute the result of those operations once. The workflow could be saved and restored to resume computation or retrieve the result of completed computation, in addition to having updates propogated to the workflow while keeping that same computation state where possible.
 
 ## **✨ Features**
 
