@@ -1,0 +1,58 @@
+{
+  "name": "@jovulic/flowstate",
+  "version": "0.1.0",
+  "description": "A library for defining, executing, and persisting data workflows.",
+  "type": "module",
+  "exports": {
+    "types": "./dist/index.d.ts",
+    "import": "./dist/index.js"
+  },
+  "scripts": {
+    "format": "prettier --write ./package.json ./*.mjs ./*.ts ./src/**/*.ts",
+    "build": "rm -rf ./dist && tsc --project tsconfig.build.json",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "eslint ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jovulic/flowstate.git"
+  },
+  "keywords": [
+    "checkpoint",
+    "computation",
+    "data processing",
+    "flow",
+    "graph",
+    "orchestration",
+    "persistence",
+    "resumable",
+    "state",
+    "workflow"
+  ],
+  "author": "Josip Vulic",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/jovulic/flowstate/issues"
+  },
+  "homepage": "https://github.com/jovulic/flowstate#readme",
+  "devDependencies": {
+    "@eslint/js": "^9.19.0",
+    "@types/node": "^22.13.1",
+    "eslint": "^9.19.0",
+    "prettier": "^3.4.2",
+    "typescript": "^5.7.3",
+    "typescript-eslint": "^8.23.0",
+    "vitest": "^3.0.4"
+  },
+  "files": [
+    "dist"
+  ],
+  "sideEffects": false,
+  "dependencies": {
+    "@dagrejs/graphlib": "^2.2.4",
+    "@sinclair/typebox": "^0.34.20",
+    "async-mutex": "^0.5.0",
+    "terser": "^5.38.2"
+  }
+}
