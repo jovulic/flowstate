@@ -28,7 +28,7 @@ export class WorkflowError extends Error {
     stack?: string;
     data: WorkflowErrorData;
   }) {
-    super(message);
+    super();
     this.name = "WorkflowError";
     this.message = message;
     this.cause = cause;
