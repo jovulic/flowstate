@@ -2,17 +2,17 @@
 [![NPM](https://img.shields.io/npm/v/@jovulic/flowstate)](https://www.npmjs.com/package/@jovulic/flowstate)
 [![Build Status](https://img.shields.io/github/actions/workflow/status/jovulic/flowstate/check.yml?branch=main)](https://github.com/jovulic/flowstate/actions)
 
-# **Flowstate**
+# Flowstate
 
 _A library for defining, executing, and persisting stateful computation._
 
-## **📌 Description**
+## 📌 Description
 
 `Flowstate` is a lightweight library for constructing and executing stateful and serializable computations graphs. `Flowstate` handles operation dependencies, and the stateful execution of the workflow nodes. `Flowstate` also allows for workflow serialization and provides the ability to easily synchronize workflows such that the workflow is minimally impacted. `Flowstate` also provdies type information for the input into each operation in the graph.
 
 An example use for the library is in a client-sever context. The library would be used to describe a workflow that includes potentially expensive operations, where you only want to compute the result of those operations once. The workflow could be saved and restored to resume computation or retrieve the result of completed computation, in addition to having updates propogated to the workflow while keeping that same computation state where possible.
 
-## **✨ Features**
+## ✨ Features
 
 ✅ **Stateful Execution** – Supports incremental evaluation of workflows.  
 ✅ **Serialization** – Workflows can be marshaled and unmarshaled for storage or transfer.  
@@ -20,7 +20,7 @@ An example use for the library is in a client-sever context. The library would b
 ✅ **Workflow Synchronization** – Supports smart updates without full recomputation.  
 ✅ **Typed Input** – Provides the computed types for the input into each operation.
 
-## **📦 Installation**
+## 📦 Installation
 
 Using npm:
 
@@ -40,9 +40,9 @@ Using pnpm:
 pnpm add @jovulic/flowstate
 ```
 
-## **🚀 Usage**
+## 🚀 Usage
 
-### **Creating a Workflow**
+### Creating a Workflow
 
 ```ts
 import { Workflow } from "@jovulic/flowstate";
@@ -50,7 +50,7 @@ import { Workflow } from "@jovulic/flowstate";
 const workflow = new Workflow();
 ```
 
-### **Adding Operations**
+### Adding Operations
 
 Define operations within the workflow:
 
@@ -76,21 +76,21 @@ const finalOperation = workflow.last(
 );
 ```
 
-### **Running a Workflow**
+### Running a Workflow
 
 ```ts
 const result = await workflow.run({}, { value: 5 });
 console.log(result); // { output: 20 }
 ```
 
-### **Marshalling and unmarshalling a Workflow**
+### Marshalling and unmarshalling a Workflow
 
 ```ts
 const serialized = workflow.marshal();
 const restoredWorkflow = Workflow.unmarshal(serialized);
 ```
 
-### **Synchronizing a Workflow**
+### Synchronizing a Workflow
 
 ```ts
 const newWorkflow = new Workflow();
