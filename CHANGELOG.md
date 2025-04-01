@@ -1,5 +1,23 @@
 # Changelog
 
+## [0.1.2](https://github.com/jovulic/flowstate/compare/flowstate-v0.1.1...flowstate-v0.1.2) (2025-04-01)
+
+
+### Documentation
+
+* fix typo in readme ([fd0797e](https://github.com/jovulic/flowstate/commit/fd0797ee5f734f43f37e30cfbe87d56a04d8f6e3))
+* remove extraneous bolding ([072f629](https://github.com/jovulic/flowstate/commit/072f6298bbf3012197322934c94e3c0089508313))
+
+
+### Code Refactoring
+
+* **nix:** replace flake-utils with inline system function ([6c301dc](https://github.com/jovulic/flowstate/commit/6c301dc12a2cfa795477a91fee4a27d00dc8e3f2))
+
+
+### General Changes
+
+* remove message from error super call as it is set below ([f09f0a7](https://github.com/jovulic/flowstate/commit/f09f0a77cdc24e5bfacd7c0aaf89f703480074d5))
+
 ## [0.1.1](https://github.com/jovulic/flowstate/compare/flowstate-v0.1.0...flowstate-v0.1.1) (2025-02-24)
 
 
