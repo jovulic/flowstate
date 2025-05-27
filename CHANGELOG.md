@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.3](https://github.com/jovulic/flowstate/compare/flowstate-v0.1.2...flowstate-v0.1.3) (2025-05-27)
+
+
+### Features
+
+* **nix:** update nixpkgs to 25.05 ([6c58f7c](https://github.com/jovulic/flowstate/commit/6c58f7c573b6faee98a186c939566e7450245d7b))
+
 ## [0.1.2](https://github.com/jovulic/flowstate/compare/flowstate-v0.1.1...flowstate-v0.1.2) (2025-04-01)
 
 
