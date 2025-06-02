@@ -30,28 +30,18 @@
       devShells = eachSystem (
         { pkgs, ... }:
         {
-          default =
-            let
-              ctl =
-                with pkgs;
-                writeShellApplication {
-                  name = "ctl";
-                  text = with builtins; readFile ./ctl/ctl;
-                };
-            in
-            pkgs.mkShell {
-              packages = [
-                pkgs.git
-                pkgs.bash
-                pkgs.bashly
-                ctl
-                pkgs.nodejs
-                pkgs.nodePackages.npm
-              ];
-              shellHook = ''
-                ctl setup --lazy
-              '';
-            };
+          default = pkgs.mkShell {
+            packages = [
+              pkgs.git
+              pkgs.bash
+              pkgs.just
+              pkgs.nodejs
+              pkgs.nodePackages.npm
+            ];
+            shellHook = ''
+              just setup lazy
+            '';
+          };
         }
       );
       packages = eachSystem (
