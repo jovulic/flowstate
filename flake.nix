@@ -71,7 +71,7 @@
                   || baseName == "tsconfig.build.json"
                   || pkgs.lib.hasPrefix (toString ./src) (toString path) && !(pkgs.lib.hasSuffix ".test.ts" baseName);
               };
-              npmDepsHash = "";
+              npmDepsHash = "sha256-tGLDr1t8toeo0c5ZjFESuKFMkfJTMFvlWBvLD7Qtdyg=";
               installPhase = ''
                 mkdir -p $out/dist
                 cp -r dist $out/
