@@ -1,4 +1,4 @@
-# Gemini Code Assistant Context
+# Code Assistant Context
 
 ## Project Overview
 
@@ -7,6 +7,7 @@ This project, `flowstate`, is a TypeScript library for defining, executing, and 
 The core concepts are `Workflow` and `Operation`. A `Workflow` is a directed acyclic graph of `Operation`s. Each `Operation` is a function that can be cached. The library supports serialization, synchronization, and incremental evaluation.
 
 The main technologies used are:
+
 - **TypeScript**: The primary language for the project.
 - **Node.js**: The runtime environment.
 - **npm**: The package manager.
