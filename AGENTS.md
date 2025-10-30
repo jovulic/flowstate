@@ -1,4 +1,4 @@
-# Code Assistant Context
+# Project: Flowstate
 
 ## Project Overview
 
