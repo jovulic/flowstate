@@ -1,5 +1,27 @@
 # Changelog
 
+## [0.1.4](https://github.com/jovulic/flowstate/compare/flowstate-v0.1.3...flowstate-v0.1.4) (2025-10-30)
+
+
+### Features
+
+* **root:** add GEMINI.md ([dfad6cc](https://github.com/jovulic/flowstate/commit/dfad6cc6f00b7f63f403d9b65a4734dc08685895))
+
+
+### Bug Fixes
+
+* **nix:** update npm deps hash for package ([40801bb](https://github.com/jovulic/flowstate/commit/40801bbbc2a8e29a8c7067c43b0f0a589af4d45c))
+
+
+### Code Refactoring
+
+* **root:** rename GEMINI.md to AGENTS.md ([fbde621](https://github.com/jovulic/flowstate/commit/fbde621463de2295d6fc1cb4cc52c203587f912d))
+
+
+### General Changes
+
+* **root:** update AGENTS.md heading ([0e40191](https://github.com/jovulic/flowstate/commit/0e40191125ae19437393e8ff8307b7dae355622e))
+
 ## [0.1.3](https://github.com/jovulic/flowstate/compare/flowstate-v0.1.2...flowstate-v0.1.3) (2025-05-27)
 
 
