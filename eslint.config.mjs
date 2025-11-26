@@ -7,7 +7,7 @@ export default tseslint.config(
   { ignores: ["dist/**"] },
   {
     rules: {
-      "@typescript-eslint/no-explicit-any": "warn",
+      "@typescript-eslint/no-explicit-any": "off",
     },
   },
 );
