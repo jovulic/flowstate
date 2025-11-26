@@ -3,7 +3,7 @@ import { Type, Static } from "@sinclair/typebox";
 import { Value } from "@sinclair/typebox/value";
 import { WorkflowError } from "./error.js";
 import { Operation, OperationDataSchema } from "./operation.js";
-import { OperationFunctionType } from "./function.js";
+import { OperationFunctionType, FunctionRegistry } from "./function.js";
 
 /**
  * {@link nonEmpty} ensures that a given value is not null or undefined.
@@ -178,6 +178,7 @@ export class Workflow<TWorkflowContext, TWorkflowInput, TWorkflowOutput> {
    */
   static unmarshal<TWorkflowContext, TWorkflowInput, TWorkflowOutput>(
     data: WorkflowData,
+    registry: FunctionRegistry,
   ): Workflow<TWorkflowContext, TWorkflowInput, TWorkflowOutput> {
     if (!Value.Check(WorkflowDataSchema, data)) {
       throw new WorkflowError({
@@ -194,7 +195,7 @@ export class Workflow<TWorkflowContext, TWorkflowInput, TWorkflowOutput> {
         JSON.parse(Buffer.from(data.graph, "base64").toString("utf-8")),
       ),
       operations: data.operations.map((operation) =>
-        Operation.unmarshal(operation),
+        Operation.unmarshal(operation, registry),
       ),
     });
   }
@@ -265,6 +266,17 @@ export class Workflow<TWorkflowContext, TWorkflowInput, TWorkflowOutput> {
     }
 
     return { value: true };
+  }
+
+  get registry(): FunctionRegistry {
+    return this.operations.value.reduce((acc, operation) => {
+      acc[operation.id] = operation.func.fn;
+      return acc;
+    }, {} as FunctionRegistry);
+  }
+
+  clone(): Workflow<TWorkflowContext, TWorkflowInput, TWorkflowOutput> {
+    return Workflow.unmarshal(this.marshal(), this.registry);
   }
 
   /**
@@ -406,7 +418,7 @@ export class Workflow<TWorkflowContext, TWorkflowInput, TWorkflowOutput> {
   sync(
     newWorkflow: Workflow<TWorkflowContext, TWorkflowInput, TWorkflowOutput>,
   ) {
-    const workflow = Workflow.unmarshal(this.marshal()) as typeof this;
+    const workflow = this.clone();
 
     // Section "update graph".
     {
