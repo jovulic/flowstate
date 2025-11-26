@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-This project, `flowstate`, is a TypeScript library for defining, executing, and persisting stateful computation graphs. It allows developers to construct and execute stateful and serializable computations, handling operation dependencies and stateful execution of workflow nodes. The library also supports workflow serialization, synchronization, and provides type information for the input into each operation in the graph.
+This project, `flowstate`, is a TypeScript library for defining, executing, and persisting stateful computation graphs. It allows developers to construct and execute stateful and serializable computations, handling operation dependencies and stateful execution of workflow nodes. The library also supports workflow serialization, synchronization, and provides type information for the input into each operation in the graph. Note that functions are not serialized with the workflow and must be provided when unmarshalling.
 
 The core concepts are `Workflow` and `Operation`. A `Workflow` is a directed acyclic graph of `Operation`s. Each `Operation` is a function that can be cached. The library supports serialization, synchronization, and incremental evaluation.
 

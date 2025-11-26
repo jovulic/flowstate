@@ -83,11 +83,37 @@ const result = await workflow.run({}, { value: 5 });
 console.log(result); // { output: 20 }
 ```
 
-### Marshalling and unmarshalling a Workflow
+### Marshalling and Unmarshalling a Workflow
+
+Workflows can be serialized to a JSON-like object for storage or transfer. When unmarshalling, you must provide a `FunctionRegistry` that maps operation IDs to their corresponding functions. This is because the functions themselves are not serialized with the workflow.
 
 ```ts
+import { Workflow, OperationFunctionType } from "@jovulic/flowstate";
+
+// It is useful to define your functions separately, so they can be
+// registered when unmarshalling.
+const functions: Record<string, OperationFunctionType<any, any, any>> = {
+  start: async (context, input) => {
+    return input.value * 2;
+  },
+  double: async (context, input) => {
+    return input.start * 2;
+  },
+  finish: async (context, input) => {
+    return input.double;
+  },
+};
+
+const workflow = new Workflow();
+
+const firstOperation = workflow.first("start", functions.start);
+const secondOperation = workflow.link([firstOperation], "double", functions.double);
+const finalOperation = workflow.last([secondOperation], "finish", functions.finish);
+
 const serialized = workflow.marshal();
-const restoredWorkflow = Workflow.unmarshal(serialized);
+
+// To unmarshal the workflow, you must provide the functions.
+const restoredWorkflow = Workflow.unmarshal(serialized, functions);
 ```
 
 ### Synchronizing a Workflow
