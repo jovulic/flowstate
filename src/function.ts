@@ -9,7 +9,7 @@ import crypto from "crypto";
  * It will minify the function such that only meaningful changes result in a
  * different hash.
  */
-function computeFunctionHash(func: Function): string {
+function computeFunctionHash(func: (...args: never) => unknown): string {
   const funcString = minify_sync(func.toString(), {
     compress: false,
     mangle: false,
