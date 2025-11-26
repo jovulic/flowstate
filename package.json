@@ -53,6 +53,6 @@
     "@dagrejs/graphlib": "^2.2.4",
     "@sinclair/typebox": "^0.34.20",
     "async-mutex": "^0.5.0",
-    "terser": "^5.38.2"
+    "terser": "^5.44.1"
   }
 }

@@ -3,6 +3,7 @@ import { nonEmpty, uniq, computeRequiredToNode, Workflow } from "./workflow.js";
 import { Operation } from "./operation.js";
 import { WorkflowError } from "./error.js";
 import graphlib from "@dagrejs/graphlib";
+import { FunctionRegistry } from "./function.js";
 
 describe("nonEmpty", () => {
   it("should return the value if it is not null or undefined", () => {
@@ -126,12 +127,19 @@ describe("computeRequiredToNode", () => {
 });
 
 describe("Workflow", () => {
+  const func1 = async () => "result1";
+  const func2 = async () => "result2";
+  const registry: FunctionRegistry = {
+    operation1: func1,
+    operation2: func2,
+  };
+
   describe("marshal/unmarshal", () => {
     const createWorkflow = () => {
       const workflow = new Workflow();
 
-      const operation1 = workflow.first("operation1", async () => "result1");
-      workflow.last([operation1], "operation2", async () => "result2");
+      const operation1 = workflow.first("operation1", func1);
+      workflow.last([operation1], "operation2", func2);
 
       return workflow;
     };
@@ -139,7 +147,7 @@ describe("Workflow", () => {
       const workflow = createWorkflow();
 
       const marshaledData = workflow.marshal();
-      const unmarshaledWorkflow = Workflow.unmarshal(marshaledData);
+      const unmarshaledWorkflow = Workflow.unmarshal(marshaledData, registry);
 
       expect(unmarshaledWorkflow).toBeInstanceOf(Workflow);
       expect(graphlib.json.write(unmarshaledWorkflow.peer.graph)).toEqual(
@@ -161,7 +169,7 @@ describe("Workflow", () => {
       };
 
       try {
-        Workflow.unmarshal(invalidData as any);
+        Workflow.unmarshal(invalidData as any, registry);
       } catch (error) {
         expect(error).toBeInstanceOf(WorkflowError);
         expect((error as any).message).toBe("invalidate operation data");
@@ -173,33 +181,16 @@ describe("Workflow", () => {
         operations: [],
       };
 
-      expect(() => Workflow.unmarshal(invalidData)).toThrowError();
+      expect(() => Workflow.unmarshal(invalidData, registry)).toThrowError();
     });
   });
 
   describe("validate", () => {
     const createWorkflow = () => {
-      const graph = new graphlib.Graph();
-      graph.setNode("operation1");
-      graph.setNode("operation2");
-      graph.setEdge("operation1", "operation2");
-
-      const operation1 = new Operation({
-        id: "operation1",
-        func: async () => "result1",
-      });
-      const operation2 = new Operation({
-        id: "operation2",
-        func: async () => "result2",
-      });
-
-      const operations = [operation1, operation2];
-      const workflow = new Workflow({
-        graph,
-        operations,
-      });
-
-      return { workflow, graph, operations };
+      const workflow = new Workflow();
+      const op1 = workflow.first("operation1", func1);
+      workflow.last([op1], "operation2", func2);
+      return { workflow };
     };
     it("should pass validation for a valid workflow", () => {
       const { workflow } = createWorkflow();
@@ -209,10 +200,7 @@ describe("Workflow", () => {
       expect(validation.value).toBe(true);
     });
     it("should fail validation if there is no source/sink nodes", () => {
-      const { workflow, graph } = createWorkflow();
-      graph.removeNode("operation1");
-      graph.removeNode("operation2");
-
+      const workflow = new Workflow();
       const validation = workflow.validate();
 
       expect(validation.value).toBe(false);
@@ -221,60 +209,103 @@ describe("Workflow", () => {
       );
     });
     it("should fail validation if there is more than one source node", () => {
-      const { workflow, graph } = createWorkflow();
-      graph.setNode("operation3");
-      graph.setEdge("operation3", "operation2");
-
+      const graph = new graphlib.Graph();
+      graph.setNode("op1");
+      graph.setNode("op2");
+      const workflow = new Workflow({
+        graph,
+        operations: [
+          new Operation({
+            id: "op1",
+            func: async () => "1",
+          }),
+          new Operation({
+            id: "op2",
+            func: async () => "2",
+          }),
+        ],
+      });
       const validation = workflow.validate();
-
       expect(validation.value).toBe(false);
       expect(validation.message).toBe(
         "workflow graph must have exactly one source node",
       );
     });
     it("should fail validation if there is more than one sink node", () => {
-      const { workflow, graph } = createWorkflow();
-      graph.setNode("operation3");
-      graph.setEdge("operation1", "operation3");
+      const workflow = new Workflow();
+      const op1 = workflow.first("op1", async () => "1");
+      workflow.link([op1], "op2", async () => "2");
+      workflow.link([op1], "op3", async () => "3");
 
       const validation = workflow.validate();
-
       expect(validation.value).toBe(false);
       expect(validation.message).toBe(
         "workflow graph must have exactly one sink node",
       );
     });
     it("should fail validation if the graph is cyclic", () => {
-      const { workflow, graph } = createWorkflow();
-
-      graph.setNode("operation3");
-      graph.setEdge("operation2", "operation3");
-      graph.setEdge("operation3", "operation2");
-      graph.setNode("operation4");
-      graph.setEdge("operation3", "operation4");
-
+      const graph = new graphlib.Graph();
+      graph.setNode("op1");
+      graph.setNode("op2");
+      graph.setNode("op3");
+      graph.setEdge("op1", "op2");
+      graph.setEdge("op2", "op2"); // cycle
+      graph.setEdge("op2", "op3");
+      const workflow = new Workflow({
+        graph,
+        operations: [
+          new Operation({
+            id: "op1",
+            func: async () => "1",
+          }),
+          new Operation({
+            id: "op2",
+            func: async () => "2",
+          }),
+          new Operation({
+            id: "op3",
+            func: async () => "3",
+          }),
+        ],
+      });
       const validation = workflow.validate();
-
       expect(validation.value).toBe(false);
       expect(validation.message).toBe("workflow graph must be acyclic");
     });
     it("should fail validation if an operation is missing from the graph", () => {
-      const { workflow, graph } = createWorkflow();
-
-      graph.removeNode("operation2");
-
+      const graph = new graphlib.Graph();
+      graph.setNode("op1");
+      // op2 is in operations but not in the graph
+      const workflow = new Workflow({
+        graph,
+        operations: [
+          new Operation({
+            id: "op1",
+            func: async () => "1",
+          }),
+          new Operation({
+            id: "op2",
+            func: async () => "2",
+          }),
+        ],
+      });
       const validation = workflow.validate();
-
       expect(validation.value).toBe(false);
       expect(validation.message).toBe(
-        'workflow is missing operation "operation2" in its graph',
+        'workflow is missing operation "op2" in its graph',
       );
     });
     it("should fail validation if there are duplicate operations", () => {
-      const { graph, operations } = createWorkflow();
-      operations.push(operations[0]);
-      const workflow = new Workflow({ graph, operations });
-
+      const graph = new graphlib.Graph();
+      graph.setNode("op1");
+      const op1 = new Operation({
+        id: "op1",
+        func: async () => "1",
+      });
+      const workflow = new Workflow({
+        graph,
+        operations: [op1, op1],
+      });
       const validation = workflow.validate();
 
       expect(validation.value).toBe(false);
@@ -421,8 +452,6 @@ describe("Workflow", () => {
 
       workflowOld.sync(workflowNew);
 
-      // TODO(jv): Mabye expose a way to access the function itself rather than
-      // also sort-of testing run here.
       const result = await workflowOld.run({}, {});
       expect(result).toEqual("result1+");
     });

@@ -4,12 +4,37 @@ import { minify_sync } from "terser";
 import crypto from "crypto";
 
 /**
+ * {@link computeFunctionHash} computes the hash for the given function.
+ *
+ * It will minify the function such that only meaningful changes result in a
+ * different hash.
+ */
+function computeFunctionHash(func: Function): string {
+  const funcString = minify_sync(func.toString(), {
+    compress: false,
+    mangle: false,
+  }).code;
+  if (funcString === undefined) {
+    throw new Error("function minification result was undefined");
+  }
+  return crypto.createHash("sha256").update(funcString).digest("hex");
+}
+
+/**
+ * {@link FunctionRegistry} defines a map of function ids to functions.
+ */
+export type FunctionRegistry = Record<
+  string,
+  OperationFunctionType<any, any, any>
+>;
+
+/**
  * {@link OperationFunctionDataSchema} defines the expected structure of an
  * {@link OperationFunction} when marshaled.
  */
 export const OperationFunctionDataSchema = Type.Object({
+  id: Type.String(),
   hash: Type.String(),
-  value: Type.String(),
 });
 export type OperationFunctionData = Static<typeof OperationFunctionDataSchema>;
 
@@ -31,10 +56,17 @@ export type OperationFunctionType<TContext, TInput, TOutput> = (
  * and deserialize the function.
  */
 export class OperationFunction<TContext, TInput, TOutput> {
-  private readonly func: OperationFunctionType<TContext, TInput, TOutput>;
+  readonly id: string;
+  readonly fn: OperationFunctionType<TContext, TInput, TOutput>;
+  readonly hash: string;
 
-  constructor(func: OperationFunctionType<TContext, TInput, TOutput>) {
-    this.func = func;
+  constructor(
+    id: string,
+    func: OperationFunctionType<TContext, TInput, TOutput>,
+  ) {
+    this.id = id;
+    this.fn = func;
+    this.hash = computeFunctionHash(this.fn);
   }
 
   /**
@@ -45,6 +77,7 @@ export class OperationFunction<TContext, TInput, TOutput> {
    */
   static unmarshal<TContext, TInput, TOutput>(
     data: OperationFunctionData,
+    registry: FunctionRegistry,
   ): OperationFunction<TContext, TInput, TOutput> {
     // Validate the provided data against the expected schema.
     if (!Value.Check(OperationFunctionDataSchema, data)) {
@@ -56,45 +89,21 @@ export class OperationFunction<TContext, TInput, TOutput> {
       );
     }
 
-    const funcString = Buffer.from(data.value, "base64").toString("utf-8");
-
-    // NB(jv): Note this is not tamper safe (nor does it need to be), nor is it
-    // necessary, but more of a "might as well".
-    const funcHash = crypto
-      .createHash("sha256")
-      .update(funcString)
-      .digest("hex");
-    if (funcHash !== data.hash) {
-      throw new Error(`operation function hash does not match`);
+    const func = registry[data.id];
+    if (func === undefined) {
+      throw new Error(`function not found in registry: ${data.id}`);
     }
 
-    // Convert the function string back into a JavaScript function.
-    const func = Function(`return ${funcString}`)() as OperationFunctionType<
-      TContext,
-      TInput,
-      TOutput
-    >;
-
-    return new OperationFunction(func);
+    return new OperationFunction(data.id, func);
   }
 
   /**
    * {@link marshal} serializes the {@link OperationFunction}.
-   *
-   * @throws If the function minification fails.
    */
   marshal(): OperationFunctionData {
-    // Minify the function to ensure consistent string representation.
-    const funcString = minify_sync(this.func.toString(), {
-      compress: false,
-      mangle: false,
-    }).code;
-    if (funcString === undefined) {
-      throw new Error("function minification result was undefined");
-    }
     return {
-      hash: crypto.createHash("sha256").update(funcString).digest("hex"),
-      value: Buffer.from(funcString).toString("base64"),
+      id: this.id,
+      hash: this.hash,
     };
   }
 
@@ -103,6 +112,6 @@ export class OperationFunction<TContext, TInput, TOutput> {
    * input.
    */
   async invoke($: TContext, input: TInput): Promise<TOutput> {
-    return this.func($, input);
+    return this.fn($, input);
   }
 }

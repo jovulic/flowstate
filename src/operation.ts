@@ -6,6 +6,7 @@ import {
   OperationFunction,
   OperationFunctionType,
   OperationFunctionDataSchema,
+  FunctionRegistry,
 } from "./function.js";
 import { WorkflowError } from "./error.js";
 
@@ -36,9 +37,8 @@ export type OperationData = Static<typeof OperationDataSchema>;
  * @template TOutput - The output type of the operation.
  */
 export class Operation<TId extends string, TContext, TInput, TOutput> {
-  public readonly id: TId;
-
-  private func: OperationFunction<TContext, TInput, TOutput>;
+  readonly id: TId;
+  readonly func: OperationFunction<TContext, TInput, TOutput>;
   private cache:
     | {
         hash: string;
@@ -63,7 +63,9 @@ export class Operation<TId extends string, TContext, TInput, TOutput> {
   }) {
     this.id = id;
     this.func =
-      func instanceof OperationFunction ? func : new OperationFunction(func);
+      func instanceof OperationFunction
+        ? func
+        : new OperationFunction(id, func);
     this.cache = cache;
     this.cacheLock = new Mutex();
   }
@@ -75,6 +77,7 @@ export class Operation<TId extends string, TContext, TInput, TOutput> {
    */
   static unmarshal<TId extends string, TContext, TInput, TOutput>(
     data: OperationData,
+    registry: FunctionRegistry,
   ): Operation<TId, TContext, TInput, TOutput> {
     if (!Value.Check(OperationDataSchema, data)) {
       throw new WorkflowError({
@@ -87,11 +90,10 @@ export class Operation<TId extends string, TContext, TInput, TOutput> {
     }
 
     const id = data.id as TId;
-    const func = OperationFunction.unmarshal(data.func) as OperationFunction<
-      TContext,
-      TInput,
-      TOutput
-    >;
+    const func = OperationFunction.unmarshal(
+      data.func,
+      registry,
+    ) as OperationFunction<TContext, TInput, TOutput>;
     const cache = (() => {
       if (data.cache == null) {
         return undefined;
