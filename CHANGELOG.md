@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.6](https://github.com/jovulic/flowstate/compare/flowstate-v0.1.5...flowstate-v0.1.6) (2025-11-26)
+
+
+### Documentation
+
+* update AGENTS.md and README.md given function reference changes ([f38de5b](https://github.com/jovulic/flowstate/commit/f38de5bbaf4d839df2ae6d375d0e18e2e9c4f2e2))
+
 ## [0.1.5](https://github.com/jovulic/flowstate/compare/flowstate-v0.1.4...flowstate-v0.1.5) (2025-11-26)
 
 
