@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.1.5](https://github.com/jovulic/flowstate/compare/flowstate-v0.1.4...flowstate-v0.1.5) (2025-11-26)
+
+
+### Features
+
+* use reference-based serialization for functions ([0d34ce4](https://github.com/jovulic/flowstate/commit/0d34ce484d07d863423b0bda6d3d09be0518c397))
+
+
+### General Changes
+
+* disable no-explicit-any lint rule ([0732bf8](https://github.com/jovulic/flowstate/commit/0732bf83a0603ec5f593807c3c8346370935e5f0))
+* replace function type with function parameters ([abf5e6e](https://github.com/jovulic/flowstate/commit/abf5e6e08b2edc569c7123412c345fd4c7bb61a0))
+* update npm modules ([7f730ba](https://github.com/jovulic/flowstate/commit/7f730baa5b249afa5498fa4155872e5b8726a0dc))
+* update terser ([f8fcf17](https://github.com/jovulic/flowstate/commit/f8fcf17d3969eedcb8eca10705c9ee7d213e6482))
+
 ## [0.1.4](https://github.com/jovulic/flowstate/compare/flowstate-v0.1.3...flowstate-v0.1.4) (2025-10-30)
 
 
