@@ -16,7 +16,10 @@ export function nonEmpty<TValue>(
   name: string = "unspecified",
 ): TValue {
   if (value == null) {
-    throw new Error(`unexpected empty value: ${name}`);
+    throw new WorkflowError({
+      message: `unexpected empty value: ${name}`,
+      data: { type: "UNEXPECTED_EMPTY_VALUE" },
+    });
   }
   return value;
 }
@@ -111,7 +114,10 @@ export function computeRequiredToNode(
 ): void {
   const edges = graph.inEdges(node);
   if (edges == null) {
-    throw new Error(`unable to find in edges for node "${node}"`);
+    throw new WorkflowError({
+      message: `unable to find in edges for node "${node}"`,
+      data: { type: "FAILED_WORKFLOW_ACTION" },
+    });
   }
   for (const edge of edges) {
     const sourceNode = edge.v;
@@ -296,10 +302,16 @@ export class Workflow<TWorkflowContext, TWorkflowInput, TWorkflowOutput> {
     // We "suffice" to check that the node already exists by checking the graph
     // only.
     if (this.graph.hasNode(id)) {
-      throw new Error(`workflow graph node by id "${id}" already exists`);
+      throw new WorkflowError({
+        message: `workflow graph node by id "${id}" already exists`,
+        data: { type: "FAILED_WORKFLOW_ACTION" },
+      });
     }
     if (this.graph.sources().length === 1) {
-      throw new Error(`workflow graph already has a source node`);
+      throw new WorkflowError({
+        message: `workflow graph already has a source node`,
+        data: { type: "FAILED_WORKFLOW_ACTION" },
+      });
     }
     this.graph.setNode(id);
 
@@ -329,7 +341,10 @@ export class Workflow<TWorkflowContext, TWorkflowInput, TWorkflowOutput> {
     // We "suffice" to check that the node already exists by checking the graph
     // only.
     if (this.graph.hasNode(id)) {
-      throw new Error(`node by id "${id}" already exists`);
+      throw new WorkflowError({
+        message: `node by id "${id}" already exists`,
+        data: { type: "FAILED_WORKFLOW_ACTION" },
+      });
     }
     this.graph.setNode(id);
 
@@ -364,7 +379,10 @@ export class Workflow<TWorkflowContext, TWorkflowInput, TWorkflowOutput> {
     // We "suffice" to check that the node already exists by checking the graph
     // only.
     if (this.graph.hasNode(id)) {
-      throw new Error(`node by id "${id}" already exists`);
+      throw new WorkflowError({
+        message: `node by id "${id}" already exists`,
+        data: { type: "FAILED_WORKFLOW_ACTION" },
+      });
     }
     this.graph.setNode(id);
 
@@ -521,9 +539,10 @@ export class Workflow<TWorkflowContext, TWorkflowInput, TWorkflowOutput> {
     const edges = this.graph.inEdges(id);
     if (edges == null || edges.length === 0) {
       if (input == null) {
-        throw new Error(
-          `operation "${id}" is the graph's source node but input has not been provided`,
-        );
+        throw new WorkflowError({
+          message: `operation "${id}" is the graph's source node but input has not been provided`,
+          data: { type: "FAILED_WORKFLOW_ACTION" },
+        });
       }
 
       const operation = nonEmpty(this.operations.lookup[id]);
@@ -550,9 +569,10 @@ export class Workflow<TWorkflowContext, TWorkflowInput, TWorkflowOutput> {
       );
 
       if (!sourceOperation.done) {
-        throw new Error(
-          `input operation "${sourceOperation.id}" has not been evaluated`,
-        );
+        throw new WorkflowError({
+          message: `input operation "${sourceOperation.id}" has not been evaluated`,
+          data: { type: "FAILED_WORKFLOW_ACTION" },
+        });
       }
       operationInput[sourceOperation.id] = sourceOperation.value;
     }
@@ -627,7 +647,10 @@ export class Workflow<TWorkflowContext, TWorkflowInput, TWorkflowOutput> {
     if (id == null) {
       const sinks = this.graph.sinks();
       if (sinks.length !== 1) {
-        throw new Error("workflow graph does not have exactly one sink");
+        throw new WorkflowError({
+          message: "workflow graph does not have exactly one sink",
+          data: { type: "FAILED_WORKFLOW_ACTION" },
+        });
       }
       const lastOperationId = this.graph.sinks()[0];
       id = lastOperationId;
@@ -683,7 +706,10 @@ export class Workflow<TWorkflowContext, TWorkflowInput, TWorkflowOutput> {
   ): Promise<TWorkflowOutput> {
     const validate = this.validate();
     if (!validate.value) {
-      throw new Error(`workflow is not valid: ${validate.message}`);
+      throw new WorkflowError({
+        message: `workflow is not valid: ${validate.message}`,
+        data: { type: "FAILED_WORKFLOW_ACTION" },
+      });
     }
     const output = await this.upto(null, { $, input });
     return output as TWorkflowOutput;
@@ -705,7 +731,10 @@ export class Workflow<TWorkflowContext, TWorkflowInput, TWorkflowOutput> {
   test($: TWorkflowContext, input: TWorkflowInput): boolean {
     const sources = this.graph.sources();
     if (sources.length !== 1) {
-      throw new Error("workflow graph does not have exactly one source");
+      throw new WorkflowError({
+        message: "workflow graph does not have exactly one source",
+        data: { type: "FAILED_WORKFLOW_ACTION" },
+      });
     }
     const firstOperationId = sources[0];
     const firstOperation = nonEmpty(this.operations.lookup[firstOperationId]);

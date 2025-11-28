@@ -2,6 +2,7 @@ import { Type, Static } from "@sinclair/typebox";
 import { Value } from "@sinclair/typebox/value";
 import { minify_sync } from "terser";
 import crypto from "crypto";
+import { WorkflowError } from "./error.js";
 
 /**
  * {@link computeFunctionHash} computes the hash for the given function.
@@ -15,7 +16,10 @@ function computeFunctionHash(func: (...args: never) => unknown): string {
     mangle: false,
   }).code;
   if (funcString === undefined) {
-    throw new Error("function minification result was undefined");
+    throw new WorkflowError({
+      message: "function minification result was undefined",
+      data: { type: "FAILED_FUNCTION_ACTION" },
+    });
   }
   return crypto.createHash("sha256").update(funcString).digest("hex");
 }
@@ -82,16 +86,21 @@ export class OperationFunction<TContext, TInput, TOutput> {
     // Validate the provided data against the expected schema.
     if (!Value.Check(OperationFunctionDataSchema, data)) {
       const errors = [...Value.Errors(OperationFunctionDataSchema, data)];
-      throw new Error(
-        `invalid operation function data: ${errors
-          .map((error) => JSON.stringify(error))
-          .join(", ")}`,
-      );
+      throw new WorkflowError({
+        message: `invalid operation function data: ${errors.map((error) => `${error.path}:${error.message}`).join("\n")}`,
+        data: {
+          type: "VALUE_VALIDATION_FAILED",
+          errors,
+        },
+      });
     }
 
     const func = registry[data.id];
     if (func === undefined) {
-      throw new Error(`function not found in registry: ${data.id}`);
+      throw new WorkflowError({
+        message: `function not found in registry: ${data.id}`,
+        data: { type: "SERIALIZATION_FAILED" },
+      });
     }
 
     return new OperationFunction(data.id, func);
