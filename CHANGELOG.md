@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.7](https://github.com/jovulic/flowstate/compare/flowstate-v0.1.6...flowstate-v0.1.7) (2025-11-28)
+
+
+### Code Refactoring
+
+* replace all errors with types workflow errors ([46bee10](https://github.com/jovulic/flowstate/commit/46bee10d6e314a16f96aeca2077b2f6e1b3875ce))
+
 ## [0.1.6](https://github.com/jovulic/flowstate/compare/flowstate-v0.1.5...flowstate-v0.1.6) (2025-11-26)
 
 
