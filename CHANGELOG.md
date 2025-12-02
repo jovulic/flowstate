@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.2.0](https://github.com/jovulic/flowstate/compare/flowstate-v0.1.7...flowstate-v0.2.0) (2025-12-02)
+
+
+### Features
+
+* update to nixos-25.11 and use jovulic/release-please-action ([e570cb8](https://github.com/jovulic/flowstate/commit/e570cb8d84802884e21927e7c7fd83645c448162))
+
+
+### General Changes
+
+* reference jovulic release please ([09ef397](https://github.com/jovulic/flowstate/commit/09ef3971af0a8be6c8fa74d493144cd220cc6051))
+
 ## [0.1.7](https://github.com/jovulic/flowstate/compare/flowstate-v0.1.6...flowstate-v0.1.7) (2025-11-28)
 
 
