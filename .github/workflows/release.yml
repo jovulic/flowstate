@@ -13,7 +13,7 @@ jobs:
     steps:
       - id: release
         name: Release Please
-        uses: googleapis/release-please-action@v4
+        uses: jovulic/release-please-action@v5
       - name: Checkout
         uses: actions/checkout@v4
         if: ${{ steps.release.outputs.release_created }}
