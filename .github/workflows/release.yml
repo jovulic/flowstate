@@ -1,3 +1,4 @@
+name: release
 on:
   push:
     branches:
@@ -5,8 +6,6 @@ on:
 permissions:
   contents: write
   pull-requests: write
-  id-token: write
-name: release
 jobs:
   release:
     runs-on: ubuntu-latest
@@ -31,20 +30,3 @@ jobs:
           git tag -a v${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }} -m "Release v${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}"
           git push origin v${{ steps.release.outputs.major }}
           git push origin v${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}
-      - name: Setup
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          registry-url: "https://registry.npmjs.org"
-        if: ${{ steps.release.outputs.release_created }}
-      - name: Install
-        run: npm ci
-        if: ${{ steps.release.outputs.release_created }}
-      - name: Build
-        run: npm run build
-        if: ${{ steps.release.outputs.release_created }}
-      - name: Publish
-        run: npm publish --provenance --access public
-        env:
-          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
-        if: ${{ steps.release.outputs.release_created }}
