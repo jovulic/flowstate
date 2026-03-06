@@ -13,6 +13,8 @@ jobs:
       - id: release
         name: Release Please
         uses: jovulic/release-please-action@v5
+        with:
+          token: ${{ secrets.PAT }}
       - name: Checkout
         uses: actions/checkout@v4
         if: ${{ steps.release.outputs.release_created }}
