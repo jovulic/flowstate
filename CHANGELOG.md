@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.3.5](https://github.com/jovulic/flowstate/compare/flowstate-v0.3.4...flowstate-v0.3.5) (2026-03-06)
+
+
+### General Changes
+
+* actually keep check workflow on 22 to match app ([7a683de](https://github.com/jovulic/flowstate/commit/7a683de02a2a301e3fbc2d60a8c28de7ca6bd91d))
+* update node ci node version to 24 ([c1ddacc](https://github.com/jovulic/flowstate/commit/c1ddacc3a35de77e318744cb4129e2fc8dd94422))
+
 ## [0.3.4](https://github.com/jovulic/flowstate/compare/flowstate-v0.3.3...flowstate-v0.3.4) (2026-03-06)
 
 
