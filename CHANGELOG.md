@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.0](https://github.com/jovulic/flowstate/compare/flowstate-v0.2.0...flowstate-v0.3.0) (2026-03-06)
+
+
+### Features
+
+* add compression support to serialization ([31d26b4](https://github.com/jovulic/flowstate/commit/31d26b47e301f0fc74f895a0d19df816ad942de3))
+
 ## [0.2.0](https://github.com/jovulic/flowstate/compare/flowstate-v0.1.7...flowstate-v0.2.0) (2025-12-02)
 
 
