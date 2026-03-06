@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.3](https://github.com/jovulic/flowstate/compare/flowstate-v0.3.2...flowstate-v0.3.3) (2026-03-06)
+
+
+### General Changes
+
+* update node version to 22 ([42ba069](https://github.com/jovulic/flowstate/commit/42ba06951f35e3fe535d54195c7f0f0105315f57))
+
 ## [0.3.2](https://github.com/jovulic/flowstate/compare/flowstate-v0.3.1...flowstate-v0.3.2) (2026-03-06)
 
 
