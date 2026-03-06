@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.3.2](https://github.com/jovulic/flowstate/compare/flowstate-v0.3.1...flowstate-v0.3.2) (2026-03-06)
+
+
+### General Changes
+
+* remove npm token as npm works now via oidc ([8def4bc](https://github.com/jovulic/flowstate/commit/8def4bcd080308e5bc1d603ccc4390c45d94376e))
+* use pat to allow workflow to trigger other workflows ([44dc1f9](https://github.com/jovulic/flowstate/commit/44dc1f90eca0db655ea9a52f0d07ff992c1c9917))
+
 ## [0.3.1](https://github.com/jovulic/flowstate/compare/flowstate-v0.3.0...flowstate-v0.3.1) (2026-03-06)
 
 
