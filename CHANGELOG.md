@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.1](https://github.com/jovulic/flowstate/compare/flowstate-v0.3.0...flowstate-v0.3.1) (2026-03-06)
+
+
+### General Changes
+
+* split up release from publish workflows ([ae0a386](https://github.com/jovulic/flowstate/commit/ae0a3867169fa8930b5d10f468bdad7d55c6fc1c))
+
 ## [0.3.0](https://github.com/jovulic/flowstate/compare/flowstate-v0.2.0...flowstate-v0.3.0) (2026-03-06)
 
 
