@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.4](https://github.com/jovulic/flowstate/compare/flowstate-v0.3.3...flowstate-v0.3.4) (2026-03-06)
+
+
+### General Changes
+
+* remove registry url from publish ([6df9a4b](https://github.com/jovulic/flowstate/commit/6df9a4bee87a7132704f43730d00b7cd269b20d0))
+
 ## [0.3.3](https://github.com/jovulic/flowstate/compare/flowstate-v0.3.2...flowstate-v0.3.3) (2026-03-06)
 
 
