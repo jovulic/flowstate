@@ -4,6 +4,7 @@ import { Value } from "@sinclair/typebox/value";
 import { WorkflowError } from "./error.js";
 import { Operation, OperationDataSchema } from "./operation.js";
 import { OperationFunctionType, FunctionRegistry } from "./function.js";
+import { compress, decompress, CompressedDataSchema } from "./compression.js";
 
 /**
  * {@link nonEmpty} ensures that a given value is not null or undefined.
@@ -130,10 +131,13 @@ export function computeRequiredToNode(
  * {@link WorkflowDataSchema} defines the expected structure of an
  * {@link Workflow} when marshaled.
  */
-const WorkflowDataSchema = Type.Object({
-  graph: Type.String(),
-  operations: Type.Array(OperationDataSchema),
-});
+const WorkflowDataSchema = Type.Union([
+  Type.Object({
+    graph: Type.String(),
+    operations: Type.Array(OperationDataSchema),
+  }),
+  CompressedDataSchema,
+]);
 type WorkflowData = Static<typeof WorkflowDataSchema>;
 
 /**
@@ -196,6 +200,10 @@ export class Workflow<TWorkflowContext, TWorkflowInput, TWorkflowOutput> {
       });
     }
 
+    if ("compressed" in data) {
+      return this.unmarshal(JSON.parse(decompress(data.compressed)), registry);
+    }
+
     return new Workflow({
       graph: graphlib.json.read(
         JSON.parse(Buffer.from(data.graph, "base64").toString("utf-8")),
@@ -209,13 +217,22 @@ export class Workflow<TWorkflowContext, TWorkflowInput, TWorkflowOutput> {
   /**
    * {@link marshal} serializes the {@link Workflow}.
    */
-  marshal(): WorkflowData {
-    return {
+  marshal(options?: { compress?: boolean }): WorkflowData {
+    const data = {
       graph: Buffer.from(
         JSON.stringify(graphlib.json.write(this.graph)),
       ).toString("base64"),
       operations: this.operations.value.map((operation) => operation.marshal()),
     };
+
+    if (options?.compress) {
+      return {
+        compressed: compress(JSON.stringify(data)),
+        algorithm: "brotli",
+      };
+    }
+
+    return data;
   }
 
   /**
@@ -453,8 +470,8 @@ export class Workflow<TWorkflowContext, TWorkflowInput, TWorkflowOutput> {
           continue;
         }
 
-        const newFunctionHash = newOperation.marshal().func.hash;
-        const oldFunctionHash = oldOperation.marshal().func.hash;
+        const newFunctionHash = newOperation.func.hash;
+        const oldFunctionHash = oldOperation.func.hash;
         if (newFunctionHash !== oldFunctionHash) {
           workflow.operations.value = workflow.operations.value.map((op) => {
             if (op.id === newOperation.id) {

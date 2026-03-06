@@ -9,21 +9,25 @@ import {
   FunctionRegistry,
 } from "./function.js";
 import { WorkflowError } from "./error.js";
+import { compress, decompress, CompressedDataSchema } from "./compression.js";
 
 /**
  * {@link OperationDataSchema} defines the expected structure of an
  * {@link Operation} when marshaled.
  */
-export const OperationDataSchema = Type.Object({
-  id: Type.String(),
-  func: OperationFunctionDataSchema,
-  cache: Type.Optional(
-    Type.Object({
-      hash: Type.String(),
-      value: Type.String(),
-    }),
-  ),
-});
+export const OperationDataSchema = Type.Union([
+  Type.Object({
+    id: Type.String(),
+    func: OperationFunctionDataSchema,
+    cache: Type.Optional(
+      Type.Object({
+        hash: Type.String(),
+        value: Type.String(),
+      }),
+    ),
+  }),
+  CompressedDataSchema,
+]);
 export type OperationData = Static<typeof OperationDataSchema>;
 
 /**
@@ -89,6 +93,10 @@ export class Operation<TId extends string, TContext, TInput, TOutput> {
       });
     }
 
+    if ("compressed" in data) {
+      return this.unmarshal(JSON.parse(decompress(data.compressed)), registry);
+    }
+
     const id = data.id as TId;
     const func = OperationFunction.unmarshal(
       data.func,
@@ -112,8 +120,8 @@ export class Operation<TId extends string, TContext, TInput, TOutput> {
   /**
    * {@link marshal} serializes the {@link Operation}.
    */
-  marshal(): OperationData {
-    return {
+  marshal(options?: { compress?: boolean }): OperationData {
+    const data = {
       id: this.id,
       func: this.func.marshal(),
       cache: (() => {
@@ -128,6 +136,15 @@ export class Operation<TId extends string, TContext, TInput, TOutput> {
         };
       })(),
     };
+
+    if (options?.compress) {
+      return {
+        compressed: compress(JSON.stringify(data)),
+        algorithm: "brotli",
+      };
+    }
+
+    return data;
   }
 
   /**

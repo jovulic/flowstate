@@ -3,6 +3,7 @@ import { Value } from "@sinclair/typebox/value";
 import { minify_sync } from "terser";
 import crypto from "crypto";
 import { WorkflowError } from "./error.js";
+import { compress, decompress, CompressedDataSchema } from "./compression.js";
 
 /**
  * {@link computeFunctionHash} computes the hash for the given function.
@@ -36,10 +37,13 @@ export type FunctionRegistry = Record<
  * {@link OperationFunctionDataSchema} defines the expected structure of an
  * {@link OperationFunction} when marshaled.
  */
-export const OperationFunctionDataSchema = Type.Object({
-  id: Type.String(),
-  hash: Type.String(),
-});
+export const OperationFunctionDataSchema = Type.Union([
+  Type.Object({
+    id: Type.String(),
+    hash: Type.String(),
+  }),
+  CompressedDataSchema,
+]);
 export type OperationFunctionData = Static<typeof OperationFunctionDataSchema>;
 
 /**
@@ -95,6 +99,10 @@ export class OperationFunction<TContext, TInput, TOutput> {
       });
     }
 
+    if ("compressed" in data) {
+      return this.unmarshal(JSON.parse(decompress(data.compressed)), registry);
+    }
+
     const func = registry[data.id];
     if (func === undefined) {
       throw new WorkflowError({
@@ -109,11 +117,20 @@ export class OperationFunction<TContext, TInput, TOutput> {
   /**
    * {@link marshal} serializes the {@link OperationFunction}.
    */
-  marshal(): OperationFunctionData {
-    return {
+  marshal(options?: { compress?: boolean }): OperationFunctionData {
+    const data = {
       id: this.id,
       hash: this.hash,
     };
+
+    if (options?.compress) {
+      return {
+        compressed: compress(JSON.stringify(data)),
+        algorithm: "brotli",
+      };
+    }
+
+    return data;
   }
 
   /**

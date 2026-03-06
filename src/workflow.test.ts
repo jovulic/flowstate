@@ -183,6 +183,42 @@ describe("Workflow", () => {
 
       expect(() => Workflow.unmarshal(invalidData, registry)).toThrowError();
     });
+
+    it("should correctly marshal and unmarshal with compression", () => {
+      const workflow = createWorkflow();
+
+      const marshaledData = workflow.marshal({ compress: true });
+      expect((marshaledData as any).compressed).toBeDefined();
+      expect((marshaledData as any).algorithm).toBe("brotli");
+
+      const unmarshaledWorkflow = Workflow.unmarshal(marshaledData, registry);
+
+      expect(unmarshaledWorkflow).toBeInstanceOf(Workflow);
+      expect(graphlib.json.write(unmarshaledWorkflow.peer.graph)).toEqual(
+        graphlib.json.write(workflow.peer.graph),
+      );
+      expect(unmarshaledWorkflow.peer.operations.value).toHaveLength(
+        workflow.peer.operations.value.length,
+      );
+    });
+
+    it("should result in smaller data when compressed", async () => {
+      const workflow = new Workflow();
+      const op1 = workflow.first("op1", async () => "a".repeat(10000));
+      workflow.last([op1], "op2", async () => "b".repeat(10000));
+
+      // We must run the workflow to populate the cache, otherwise the marshaled
+      // object is very small as it only contains the graph and function ids.
+      await workflow.run({}, {});
+
+      const uncompressed = workflow.marshal();
+      const compressed = workflow.marshal({ compress: true });
+
+      const uncompressedSize = JSON.stringify(uncompressed).length;
+      const compressedSize = JSON.stringify(compressed).length;
+
+      expect(compressedSize).toBeLessThan(uncompressedSize);
+    });
   });
 
   describe("validate", () => {
