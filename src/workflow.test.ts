@@ -487,7 +487,7 @@ describe("Workflow", () => {
 
       const workflowNew = new Workflow();
       const newOpA = workflowNew.first("A", async () => "A2_CHANGED");
-      const newOpB = workflowNew.link([newOpA], "B", async () => "B1");
+      workflowNew.link([newOpA], "B", async () => "B1");
       // C now depends directly on A!
       workflowNew.last([newOpA], "C", async ($, input) => input.A + "C1");
 
@@ -536,6 +536,73 @@ describe("Workflow", () => {
       // But E MUST be cleared!
       expect(oldWf.peer.operations.lookup["B"]?.done).toBe(false);
       expect(oldWf.peer.operations.lookup["E"]?.done).toBe(false);
+    });
+    it("should clear caches deeply down the dependency chain when an upstream operation changes", async () => {
+      // A -> B -> C -> D
+      const workflowOld = new Workflow();
+      const opA = workflowOld.first("A", async () => "A");
+      const opB = workflowOld.link([opA], "B", async () => "B");
+      const opC = workflowOld.link([opB], "C", async () => "C");
+      workflowOld.last([opC], "D", async () => "D");
+
+      await workflowOld.run({}, {});
+      expect(workflowOld.peer.operations.lookup["A"]?.done).toBe(true);
+      expect(workflowOld.peer.operations.lookup["B"]?.done).toBe(true);
+      expect(workflowOld.peer.operations.lookup["C"]?.done).toBe(true);
+      expect(workflowOld.peer.operations.lookup["D"]?.done).toBe(true);
+
+      const workflowNew = new Workflow();
+      // Change A
+      const newOpA = workflowNew.first("A", async () => "A_CHANGED");
+      const newOpB = workflowNew.link([newOpA], "B", async () => "B");
+      const newOpC = workflowNew.link([newOpB], "C", async () => "C");
+      workflowNew.last([newOpC], "D", async () => "D");
+
+      workflowOld.sync(workflowNew);
+
+      // Entire chain should be cleared
+      expect(workflowOld.peer.operations.lookup["A"]?.done).toBe(false);
+      expect(workflowOld.peer.operations.lookup["B"]?.done).toBe(false);
+      expect(workflowOld.peer.operations.lookup["C"]?.done).toBe(false);
+      expect(workflowOld.peer.operations.lookup["D"]?.done).toBe(false);
+    });
+    it("should not clear caches of independent branches when an operation changes", async () => {
+      // Source: S
+      // Branch 1: S -> A -> B
+      // Branch 2: S -> C -> D
+      // Sink: E (depends on B and D)
+      const workflowOld = new Workflow();
+      const opS = workflowOld.first("S", async () => "S");
+      const opA2 = workflowOld.link([opS], "A", async () => "A");
+      const opB2 = workflowOld.link([opA2], "B", async () => "B");
+      const opC2 = workflowOld.link([opS], "C", async () => "C");
+      const opD2 = workflowOld.link([opC2], "D", async () => "D");
+      workflowOld.last([opB2, opD2], "E", async () => "E");
+
+      await workflowOld.run({}, {});
+      expect(workflowOld.peer.operations.lookup["C"]?.done).toBe(true);
+      expect(workflowOld.peer.operations.lookup["D"]?.done).toBe(true);
+
+      const workflowNew = new Workflow();
+      const newOpS = workflowNew.first("S", async () => "S");
+      // Change A on Branch 1
+      const newOpA2 = workflowNew.link([newOpS], "A", async () => "A_CHANGED");
+      const newOpB2 = workflowNew.link([newOpA2], "B", async () => "B");
+      const newOpC2 = workflowNew.link([newOpS], "C", async () => "C");
+      const newOpD2 = workflowNew.link([newOpC2], "D", async () => "D");
+      workflowNew.last([newOpB2, newOpD2], "E", async () => "E");
+
+      workflowOld.sync(workflowNew);
+
+      // Branch 1 (A, B) and Sink (E) should be cleared
+      expect(workflowOld.peer.operations.lookup["A"]?.done).toBe(false);
+      expect(workflowOld.peer.operations.lookup["B"]?.done).toBe(false);
+      expect(workflowOld.peer.operations.lookup["E"]?.done).toBe(false);
+
+      // Source (S) and Branch 2 (C, D) should NOT be cleared
+      expect(workflowOld.peer.operations.lookup["S"]?.done).toBe(true);
+      expect(workflowOld.peer.operations.lookup["C"]?.done).toBe(true);
+      expect(workflowOld.peer.operations.lookup["D"]?.done).toBe(true);
     });
     it("should add operations that are in the new workflow but not in the old workflow", () => {
       const workflowOld = new Workflow();
