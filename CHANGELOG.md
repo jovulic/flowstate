@@ -1,5 +1,24 @@
 # Changelog
 
+## [0.3.6](https://github.com/jovulic/flowstate/compare/flowstate-v0.3.5...flowstate-v0.3.6) (2026-03-14)
+
+
+### Bug Fixes
+
+* also update operation test with hash changes ([f0ba518](https://github.com/jovulic/flowstate/commit/f0ba51819b952faf97ded37aa6479c617d0617cb))
+
+
+### Documentation
+
+* add comments about hash changes ([91023f5](https://github.com/jovulic/flowstate/commit/91023f559f92ec5d510b1ae9082477b6ea498c54))
+
+
+### General Changes
+
+* add more tests related to workflow sync ([c3b0b90](https://github.com/jovulic/flowstate/commit/c3b0b90e462ba3a45c8f852219d8b4ab8379cc56))
+* check function hash in operation cache check ([a20eff4](https://github.com/jovulic/flowstate/commit/a20eff411db17584c0848530739ba7a861daa294))
+* update sync to work off new graph and add tests ([818830c](https://github.com/jovulic/flowstate/commit/818830ca7f526fe5806e6890805da3cb98d0c13e))
+
 ## [0.3.5](https://github.com/jovulic/flowstate/compare/flowstate-v0.3.4...flowstate-v0.3.5) (2026-03-06)
 
 
