@@ -481,19 +481,22 @@ export class Workflow<TWorkflowContext, TWorkflowInput, TWorkflowOutput> {
           });
           workflow.operations.lookup[newOperation.id] = newOperation;
           // We perform "clearing all downstream operation values" by using the
-          // old workflow graph to compute a preorder traversal (postorder
+          // new workflow graph to compute a preorder traversal (postorder
           // would work too) and calling reset on all those operations on the
           // workflow being built.
           //
-          // All operations must still exist at at this point as we have not
-          // done any removal.
+          // Operations might not exist in the lookup yet if they are entirely
+          // new nodes that appear later in the iteration. In that case, they
+          // naturally have no cache to clear, so we safely ignore them.
           {
-            const downIds = graphlib.alg.preorder(this.graph, [
+            const downIds = graphlib.alg.preorder(newWorkflow.graph, [
               newOperation.id,
             ]);
             for (const downId of downIds) {
-              const operation = nonEmpty(workflow.operations.lookup[downId]);
-              operation.clear();
+              const operation = workflow.operations.lookup[downId];
+              if (operation != null) {
+                operation.clear();
+              }
             }
           }
           continue;

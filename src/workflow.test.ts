@@ -458,6 +458,85 @@ describe("Workflow", () => {
   });
 
   describe("sync", () => {
+    it("should clear cache of downstream nodes when function changes", async () => {
+      const workflowOld = new Workflow();
+      const op1 = workflowOld.first("op1", async () => "result1");
+      workflowOld.last([op1], "op2", async ($, input) => input.op1 + "-2");
+
+      await workflowOld.run({}, {});
+      expect(workflowOld.peer.operations.lookup["op2"]?.done).toBe(true);
+
+      const workflowNew = new Workflow();
+      const newOp1 = workflowNew.first("op1", async () => "result1+");
+      workflowNew.last([newOp1], "op2", async ($, input) => input.op1 + "-2");
+
+      workflowOld.sync(workflowNew);
+
+      expect(workflowOld.peer.operations.lookup["op1"]?.done).toBe(false);
+      expect(workflowOld.peer.operations.lookup["op2"]?.done).toBe(false);
+    });
+    it("should clear cache of newly downstream nodes when topology changes", async () => {
+      const workflowOld = new Workflow();
+      const opA = workflowOld.first("A", async () => "A1");
+      const opB = workflowOld.link([opA], "B", async () => "B1");
+      workflowOld.last([opB], "C", async ($, input) => input.B + "C1");
+
+      await workflowOld.run({}, {});
+      expect(workflowOld.peer.operations.lookup["B"]?.done).toBe(true);
+      expect(workflowOld.peer.operations.lookup["C"]?.done).toBe(true);
+
+      const workflowNew = new Workflow();
+      const newOpA = workflowNew.first("A", async () => "A2_CHANGED");
+      const newOpB = workflowNew.link([newOpA], "B", async () => "B1");
+      // C now depends directly on A!
+      workflowNew.last([newOpA], "C", async ($, input) => input.A + "C1");
+
+      workflowOld.sync(workflowNew);
+
+      // A changed function hash, so A clears.
+      // B did NOT change function hash, but it's downstream of A in the new graph, so B clears.
+      // C did NOT change function hash, but it's now directly downstream of A, so C clears.
+      expect(workflowOld.peer.operations.lookup["B"]?.done).toBe(false);
+      expect(workflowOld.peer.operations.lookup["C"]?.done).toBe(false);
+    });
+    it("should clear cache of newly dependent downstream nodes when a non-source node changes", async () => {
+      // Old Graph:
+      // A -> B -> D -> F
+      // A -> C -> E -> F
+      const oldWf = new Workflow();
+      const opA = oldWf.first("A", async () => "A");
+      const opB = oldWf.link([opA], "B", async () => "B");
+      const opC = oldWf.link([opA], "C", async () => "C");
+      const opD = oldWf.link([opB], "D", async () => "D");
+      const opE = oldWf.link([opC], "E", async () => "E");
+      oldWf.last([opD, opE], "F", async () => "F");
+
+      await oldWf.run({}, {});
+      expect(oldWf.peer.operations.lookup["D"]?.done).toBe(true);
+      expect(oldWf.peer.operations.lookup["E"]?.done).toBe(true);
+
+      // New Graph:
+      // A -> B -> E -> F
+      // A -> C -> D -> F
+      // And we change B's function.
+      const newWf = new Workflow();
+      const newOpA = newWf.first("A", async () => "A");
+      const newOpB = newWf.link([newOpA], "B", async () => "B_CHANGED"); // B changed
+      const newOpC = newWf.link([newOpA], "C", async () => "C");
+      const newOpE = newWf.link([newOpB], "E", async () => "E"); // E is now downstream of B
+      const newOpD = newWf.link([newOpC], "D", async () => "D"); // D is now downstream of C
+      newWf.last([newOpD, newOpE], "F", async () => "F");
+
+      oldWf.sync(newWf);
+
+      // B changed, so B is cleared.
+      // In the new graph, E is downstream of B, so E should be cleared!
+      // D is no longer downstream of B, but it was in the old graph. Should D be cleared?
+      // It doesn't strictly have to be cleared because its input comes from C now, and if C hasn't changed...
+      // But E MUST be cleared!
+      expect(oldWf.peer.operations.lookup["B"]?.done).toBe(false);
+      expect(oldWf.peer.operations.lookup["E"]?.done).toBe(false);
+    });
     it("should add operations that are in the new workflow but not in the old workflow", () => {
       const workflowOld = new Workflow();
       workflowOld.first("operation1", async () => "result1");
