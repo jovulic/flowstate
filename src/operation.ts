@@ -148,9 +148,9 @@ export class Operation<TId extends string, TContext, TInput, TOutput> {
   }
 
   /**
-   * {@link computeHash} computes a unique hash for a given input.
+   * {@link computeInputHash} computes a unique hash for a given input.
    */
-  private computeHash(input: TInput): string {
+  private computeInputHash(input: TInput): string {
     // We nullish the input string to handle cases where the input is undefined
     // (which is the case when a operation does not take any input).
     const inputString = input == null ? "{}" : JSON.stringify(input);
@@ -183,7 +183,7 @@ export class Operation<TId extends string, TContext, TInput, TOutput> {
   test($: TContext, input: TInput): boolean {
     // TODO(jv): We include the context in the signature as we may want to also
     // version operation values off the context.
-    const inputHash = this.computeHash(input);
+    const inputHash = this.computeInputHash(input);
     return this.cache?.hash === inputHash ? true : false;
   }
 
@@ -194,16 +194,18 @@ export class Operation<TId extends string, TContext, TInput, TOutput> {
    * returned. Otherwise, the function executes and stores the result.
    */
   async eval($: TContext, input: TInput): Promise<TOutput> {
-    const inputHash = this.computeHash(input);
+    const inputHash = this.computeInputHash(input);
+    const funcHash = this.func.hash;
+    const cacheHash = `${inputHash}_${funcHash}`;
 
     // If the cache is set and shares the same input hash, we return the cached
     // value. We other compute the value and update the cached value.
     const value = await this.cacheLock.runExclusive(async () => {
-      if (this.cache != null && this.cache.hash === inputHash) {
+      if (this.cache != null && this.cache.hash === cacheHash) {
         return this.cache.value;
       }
       const value = await this.func.invoke($, input);
-      this.cache = { hash: inputHash, value };
+      this.cache = { hash: cacheHash, value };
       return value;
     });
     return value;
