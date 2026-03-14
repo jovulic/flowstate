@@ -184,7 +184,9 @@ export class Operation<TId extends string, TContext, TInput, TOutput> {
     // TODO(jv): We include the context in the signature as we may want to also
     // version operation values off the context.
     const inputHash = this.computeInputHash(input);
-    return this.cache?.hash === inputHash ? true : false;
+    const funcHash = this.func.hash;
+    const cacheHash = `${inputHash}_${funcHash}`;
+    return this.cache?.hash === cacheHash;
   }
 
   /**
