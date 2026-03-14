@@ -176,9 +176,9 @@ export class Operation<TId extends string, TContext, TInput, TOutput> {
   }
 
   /**
-   * {@link test} checks whether the input matches the cached input hash,
-   * returning true on a match. It will return false if there is no cached
-   * input.
+   * {@link test} checks whether the input and the function hash matches the
+   * cached hash, returning true on a match. It will return false if there is no
+   * cached input.
    */
   test($: TContext, input: TInput): boolean {
     // TODO(jv): We include the context in the signature as we may want to also
@@ -192,15 +192,16 @@ export class Operation<TId extends string, TContext, TInput, TOutput> {
   /**
    * {@link eval} evaluates the operation and caches the result.
    *
-   * If the same input has been evaluated before, the cached result is
-   * returned. Otherwise, the function executes and stores the result.
+   * If the same input and function hash has been evaluated before, the cached
+   * result is returned. Otherwise, the function executes and stores the
+   * result.
    */
   async eval($: TContext, input: TInput): Promise<TOutput> {
     const inputHash = this.computeInputHash(input);
     const funcHash = this.func.hash;
     const cacheHash = `${inputHash}_${funcHash}`;
 
-    // If the cache is set and shares the same input hash, we return the cached
+    // If the cache is set and shares the same cache hash, we return the cached
     // value. We other compute the value and update the cached value.
     const value = await this.cacheLock.runExclusive(async () => {
       if (this.cache != null && this.cache.hash === cacheHash) {

@@ -734,16 +734,15 @@ export class Workflow<TWorkflowContext, TWorkflowInput, TWorkflowOutput> {
 
   /**
    * {@link test} checks whether the first operation in the graph is cached for
-   * the given input. It will return true if the source operation input matches
-   * the cache input.
+   * the given input and the current function hash. It will return true if both
+   * the source operation input and function hash match the cached hash.
    *
-   * The use case for the method is to check if the input will trigger
-   * recomputation. We know that all changes to the graph must come from the
-   * input, and therefore is suffices to check if the input has any change as
-   * to whether downstream operations will require evaluation.
+   * The use case for the method is to check if the input or operation function
+   * itself will trigger recomputation. We know that all changes to the graph
+   * must come from either the input or the operations themselves.
    *
    * It is also side-effect free and lightweight in that it does not perform
-   * the computation but rather just the check of differing input hash.
+   * the computation but rather just the check of differing hashes.
    */
   test($: TWorkflowContext, input: TWorkflowInput): boolean {
     const sources = this.graph.sources();
