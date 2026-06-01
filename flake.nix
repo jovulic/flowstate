@@ -2,7 +2,7 @@
   description = "A library for defining, executing, and persisting computation.";
 
   inputs = {
-    nixpkgs.url = "nixpkgs/nixos-25.11";
+    nixpkgs.url = "nixpkgs/nixos-26.05";
   };
 
   outputs =
@@ -36,7 +36,6 @@
               pkgs.bash
               pkgs.just
               pkgs.nodejs
-              pkgs.nodePackages.npm
             ];
             shellHook = ''
               just setup lazy
