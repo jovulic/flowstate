@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.0](https://github.com/jovulic/flowstate/compare/flowstate-v0.3.6...flowstate-v0.4.0) (2026-06-01)
+
+
+### Features
+
+* update to 26.05 ([1cf3ee1](https://github.com/jovulic/flowstate/commit/1cf3ee175266f59d936f7b4344189c3a1b20d85d))
+
 ## [0.3.6](https://github.com/jovulic/flowstate/compare/flowstate-v0.3.5...flowstate-v0.3.6) (2026-03-14)
 
 
