@@ -6,21 +6,21 @@
 
 _A library for defining, executing, and persisting stateful computation._
 
-## 📌 Description
+## Description
 
 `Flowstate` is a lightweight library for constructing and executing stateful and serializable computations graphs. `Flowstate` handles operation dependencies, and the stateful execution of the workflow nodes. `Flowstate` also allows for workflow serialization and provides the ability to easily synchronize workflows such that the workflow is minimally impacted. `Flowstate` also provdies type information for the input into each operation in the graph.
 
 An example use for the library is in a client-sever context. The library would be used to describe a workflow that includes potentially expensive operations, where you only want to compute the result of those operations once. The workflow could be saved and restored to resume computation or retrieve the result of completed computation, in addition to having updates propogated to the workflow while keeping that same computation state where possible.
 
-## ✨ Features
+## Features
 
-✅ **Stateful Execution** – Supports incremental evaluation of workflows.  
-✅ **Serialization** – Workflows can be marshaled and unmarshaled for storage or transfer.  
-✅ **Graph Dependency Management** – Uses a graph structure to manage execution order.  
-✅ **Workflow Synchronization** – Supports smart updates without full recomputation.  
-✅ **Typed Input** – Provides the computed types for the input into each operation.
+- **Stateful Execution** – Supports incremental evaluation of workflows.
+- **Serialization** – Workflows can be marshaled and unmarshaled for storage or transfer.
+- **Graph Dependency Management** – Uses a graph structure to manage execution order.
+- **Workflow Synchronization** – Supports smart updates without full recomputation.
+- **Typed Input** – Provides the computed types for the input into each operation.
 
-## 📦 Installation
+## Installation
 
 Using npm:
 
@@ -40,7 +40,7 @@ Using pnpm:
 pnpm add @jovulic/flowstate
 ```
 
-## 🚀 Usage
+## Usage
 
 ### Creating a Workflow
 
@@ -107,8 +107,16 @@ const functions: Record<string, OperationFunctionType<any, any, any>> = {
 const workflow = new Workflow();
 
 const firstOperation = workflow.first("start", functions.start);
-const secondOperation = workflow.link([firstOperation], "double", functions.double);
-const finalOperation = workflow.last([secondOperation], "finish", functions.finish);
+const secondOperation = workflow.link(
+  [firstOperation],
+  "double",
+  functions.double,
+);
+const finalOperation = workflow.last(
+  [secondOperation],
+  "finish",
+  functions.finish,
+);
 
 const serialized = workflow.marshal();
 
@@ -123,7 +131,7 @@ const newWorkflow = new Workflow();
 workflow.sync(newWorkflow); // workflow is now empty
 ```
 
-## 🛠️ Build
+## Build
 
 This project uses [Nix](https://nixos.org) for development to ensuring a consistent and reproducible environment. It is easy enough to build without it, but the following guide will be using Nix.
 
