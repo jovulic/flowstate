@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.1](https://github.com/jovulic/flowstate/compare/flowstate-v0.4.0...flowstate-v0.4.1) (2026-10-12)
+
+
+### Documentation
+
+* remove emojis ([c5a4e3d](https://github.com/jovulic/flowstate/commit/c5a4e3d163808d72449e10baa416c5861aef8e65))
+
 ## [0.4.0](https://github.com/jovulic/flowstate/compare/flowstate-v0.3.6...flowstate-v0.4.0) (2026-06-01)
 
 
